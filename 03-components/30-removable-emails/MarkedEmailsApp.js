@@ -46,12 +46,19 @@ export default defineComponent({
     const emails = ref(getEmails())
     const query = ref('')
 
-    const markedEmails = computed(() => {
-      return emails.value.map(email => ({
-        email,
-        isMarked: !!(query.value && email.toLowerCase().includes(query.value.toLowerCase())),
-      }))
-    })
+    const markedEmails = computed(
+      () => {
+      return emails.value
+        .map(
+          (email) => {
+            return{
+              email,
+              isMarked: !!(query.value && email.toLowerCase().includes(query.value.toLowerCase())),
+            }
+          }
+        )
+      }
+    )
 
     function removeEmailByIndex(index) {
       emails.value.splice(index, 1)
@@ -69,7 +76,7 @@ export default defineComponent({
       <UiFormGroup>
         <UiInput v-model.trim="query" type="search" placeholder="Поиск" aria-label="Поиск" small />
       </UiFormGroup>
-      <EmailList :emails="markedEmails" />
+      <EmailList :emails="markedEmails" @remove-email-item="removeEmailByIndex" />
     </div>
   `,
 })

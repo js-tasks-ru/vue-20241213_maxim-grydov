@@ -1,73 +1,134 @@
-import { defineComponent } from 'vue'
-// import { getMeetup } from './meetupsService.ts'
+import { computed, defineComponent, ref, watchEffect } from 'vue'
+import { getMeetup } from './meetupsService.ts'
+
 
 export default defineComponent({
   name: 'SelectedMeetupApp',
 
-  setup() {},
+  setup() {
+    const defaultMeetupId = 1
+
+    const currentMeetupId = ref(defaultMeetupId)
+    const meetupData = ref(null)
+
+    // предположим что у нас всегда от 1 до 5 митапов
+    const minimumMeetups = 1
+    const maximumMeetups = 5
+
+    const disabledPrev = computed(
+      () => {
+        return currentMeetupId.value === minimumMeetups
+      }
+    )
+    const disabledNext = computed(
+      () => {
+        return currentMeetupId.value === maximumMeetups
+      }
+    )
+
+
+    watchEffect(
+      () => {
+        // получаем нужный митап
+        getMeetup(currentMeetupId.value)
+          .then(
+            (meetup) => {
+              // допустим что все митапы у нас есть всегда и не будем ничего городить =)
+              meetupData.value = meetup
+            }
+          )
+          .catch(
+            (err) => {
+              alert(`Произошла непредвиденная ошибка ${err.message}`)
+              console.error(err)
+            }
+          )
+      }
+    )
+
+
+    const CHANGE_MODS = {
+      PREV: 'prev',
+      NEXT: 'next',
+    }
+
+
+    /**
+     * Пролистывание назад/вперед
+     *
+     * @param { string } mod
+     */
+    function changeMeetupId(mod) {
+      switch (mod) {
+        case CHANGE_MODS.PREV:
+          currentMeetupId.value = --currentMeetupId.value
+          break
+        case CHANGE_MODS.NEXT:
+          currentMeetupId.value = ++currentMeetupId.value
+          break
+
+        default:
+          throw new Error(`changeMeetupId: mod: ${mod}`)
+      }
+    }
+
+
+    /**
+     * Выбор конкретного митапа
+     *
+     * @param { number } meetupId
+     */
+    function choiceMeetupId(meetupId) {
+      currentMeetupId.value = meetupId
+    }
+
+
+    return {
+      disabledPrev,
+      disabledNext,
+      maximumMeetups,
+      currentMeetupId,
+      meetupData,
+      CHANGE_MODS,
+      changeMeetupId,
+      choiceMeetupId,
+    }
+  },
 
   template: `
     <div class="meetup-selector">
       <div class="meetup-selector__control">
-        <button class="button button--secondary" type="button" disabled>Предыдущий</button>
+        <button class="button button--secondary" type="button" :disabled="disabledPrev" 
+                @click="changeMeetupId(CHANGE_MODS.PREV)"
+        >Предыдущий</button>
 
         <div class="radio-group" role="radiogroup">
-          <div class="radio-group__button">
+          <div class="radio-group__button" v-for="numMeetup of maximumMeetups">
             <input
-              id="meetup-id-1"
+              :id="'meetup-id-' + numMeetup"
               class="radio-group__input"
               type="radio"
               name="meetupId"
-              value="1"
+              :value="numMeetup"
+              v-model="currentMeetupId"
+              @change="choiceMeetupId(numMeetup)"
             />
-            <label for="meetup-id-1" class="radio-group__label">1</label>
-          </div>
-          <div class="radio-group__button">
-            <input
-              id="meetup-id-2"
-              class="radio-group__input"
-              type="radio"
-              name="meetupId"
-              value="2"
-            />
-            <label for="meetup-id-2" class="radio-group__label">2</label>
-          </div>
-          <div class="radio-group__button">
-            <input
-              id="meetup-id-3"
-              class="radio-group__input"
-              type="radio"
-              name="meetupId"
-              value="3"
-            />
-            <label for="meetup-id-3" class="radio-group__label">3</label>
-          </div>
-          <div class="radio-group__button">
-            <input
-              id="meetup-id-4"
-              class="radio-group__input"
-              type="radio"
-              name="meetupId"
-              value="4"
-            />
-            <label for="meetup-id-4" class="radio-group__label">4</label>
-          </div>
-          <div class="radio-group__button">
-            <input
-              id="meetup-id-5"
-              class="radio-group__input"
-              type="radio"
-              name="meetupId"
-              value="5"
-            />
-            <label for="meetup-id-5" class="radio-group__label">5</label>
+            <label :for="'meetup-id-' + numMeetup" class="radio-group__label">{{ numMeetup }}</label>
           </div>
         </div>
 
-        <button class="button button--secondary" type="button">Следующий</button>
+        <button class="button button--secondary" type="button" :disabled="disabledNext"
+                @click="changeMeetupId(CHANGE_MODS.NEXT)"
+        >Следующий</button>
+      </div>
+      
+      <div class="meetup-selector__cover" v-if="meetupData">
+        <div class="meetup-cover">
+          <h1 class="meetup-cover__title">{{ meetupData.title }}</h1>
+        </div>
       </div>
 
-      <div class="meetup-selector__cover">
+      <div class="meetup-selector__cover" v-else>
         <div class="meetup-cover">
           <h1 class="meetup-cover__title">Some Meetup Title</h1>
         </div>

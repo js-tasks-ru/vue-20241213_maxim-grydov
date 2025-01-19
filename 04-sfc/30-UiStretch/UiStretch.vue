@@ -12,9 +12,10 @@
   height: 100%;
 }
 
-.stretch-container > img,
-.stretch-container > video,
-.stretch-container > picture {
+
+.stretch-container :deep(img),
+.stretch-container :deep(video),
+.stretch-container :deep(picture) {
   object-fit: scale-down;
 }
 </style>

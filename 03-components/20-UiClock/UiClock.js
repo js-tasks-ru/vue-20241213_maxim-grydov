@@ -1,4 +1,4 @@
-import { computed, defineComponent, ref, watchEffect } from 'vue'
+import { computed, defineComponent, ref, onBeforeUnmount } from 'vue'
 
 export default defineComponent({
   name: 'UiClock',
@@ -6,18 +6,9 @@ export default defineComponent({
   setup() {
     const currentTime = ref(new Date())
 
-    // либо так
-    // const showTime = computed(
-    //   () => {
-    //     return currentTime.value.toLocaleTimeString(undefined, { timeStyle: 'medium' })
-    //   }
-    // )
-
-    // либо так =)
-    const showTime = ref('')
-    watchEffect(
+    const showTime = computed(
       () => {
-        showTime.value = currentTime.value.toLocaleTimeString(undefined, { timeStyle: 'medium' })
+        return currentTime.value.toLocaleTimeString(navigator.language, { timeStyle: 'medium' })
       }
     )
 
@@ -28,17 +19,19 @@ export default defineComponent({
       1000
     )
 
+    onBeforeUnmount(
+      () => {
+        if (intervalId) {
+          clearInterval(intervalId)
+        }
+      }
+    )
+
     return {
       showTime,
-      intervalId,
     }
   },
 
-  beforeUnmount() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId)
-    }
-  },
 
   template: `<div class="clock">{{ showTime }}</div>`,
 })

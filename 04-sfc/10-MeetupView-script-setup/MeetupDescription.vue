@@ -8,12 +8,6 @@ defineProps(
   }
 )
 
-defineOptions(
-  {
-    name: 'MeetupDescription',
-  }
-)
-
 </script>
 
 

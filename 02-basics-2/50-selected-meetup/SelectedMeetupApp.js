@@ -73,16 +73,6 @@ export default defineComponent({
     }
 
 
-    /**
-     * Выбор конкретного митапа
-     *
-     * @param { number } meetupId
-     */
-    function choiceMeetupId(meetupId) {
-      currentMeetupId.value = meetupId
-    }
-
-
     return {
       disabledPrev,
       disabledNext,
@@ -91,7 +81,6 @@ export default defineComponent({
       meetupData,
       CHANGE_MODS,
       changeMeetupId,
-      choiceMeetupId,
     }
   },
 
@@ -111,7 +100,6 @@ export default defineComponent({
               name="meetupId"
               :value="numMeetup"
               v-model="currentMeetupId"
-              @change="choiceMeetupId(numMeetup)"
             />
             <label :for="'meetup-id-' + numMeetup" class="radio-group__label">{{ numMeetup }}</label>
           </div>

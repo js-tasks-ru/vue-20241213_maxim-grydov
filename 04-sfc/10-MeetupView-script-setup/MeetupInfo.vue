@@ -18,11 +18,6 @@ const props = defineProps(
   }
 )
 
-defineOptions(
-  {
-    name: 'MeetupInfo',
-  }
-)
 
 const isoDate = computed(() => new Date(props.date).toISOString().slice(0, 10))
 const localDate = computed(() =>

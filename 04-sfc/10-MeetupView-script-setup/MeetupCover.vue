@@ -13,12 +13,6 @@ const props = defineProps(
   }
 )
 
-defineOptions(
-  {
-    name: 'MeetupCover',
-  }
-)
-
 const bgStyle = computed(() => (props.image ? { '--bg-url': `url('${props.image}')` } : undefined))
 
 </script>
